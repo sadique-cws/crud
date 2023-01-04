@@ -1,5 +1,10 @@
 <?php 
 $db = mysqli_connect("localhost","root","","crud");
+session_start();
+
+function checkAuth(){
+    return isset($_SESSION['admin']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -12,71 +17,10 @@ $db = mysqli_connect("localhost","root","","crud");
 </head>
 <body>
     
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a href="" class="navbar-brand">CRUD</a>
-
-
-            <div class="navbar-nav">
-                <a href="" class="nav-item nav-link">Home</a>
-                <a href="" class="nav-item nav-link">About</a>
-                <a href="#rock" data-bs-toggle="modal" class="nav-item nav-link">Insert</a>
-            </div>
-        </div>
-    </nav>
+   <?php include "header.php";?>
 
     <div class="container mt-5">
-        <div class="modal fade" id="rock" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">Insert Record</div>
-                    <div class="modal-body">
-                    <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <form action="index.php" method="post">
-                        <div class="mb-3">
-                            <div class="row">
-                                <div class="col-6">
-                                    <label for="">Name</label>
-                                    <input type="text" name="name" class="form-control">
-                                </div>
-                                <div class="col-6">
-                                    <label for="">Contact</label>
-                                    <input type="text" name="contact" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-6">
-                                    <label for="">Email</label>
-                                    <input type="email" name="email" class="form-control">
-                                </div>
-                                <div class="col-6">
-                                    <label for="">city</label>
-                                    <select class="form-select"  name="city" >
-                                            <option>Purnea</option>
-                                            <option>Patna</option>
-                                            <option>Indore</option>
-                                            <option>Bhopal</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row mt-4">
-                                <div class="col-12">
-                                    <input type="submit" class="btn btn-success float-end mx-4" name="send" value="Create">
-                                    <input type="reset" class="btn btn-danger float-end" value="Clear Form">
-                                </div>
-                            </div>
-                        </div>
-                    </form> 
-                </div>
-            </div>
-        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12">
+         <div class="col-12">
            <div class="row">
             <div class="col-9">
             <h2 class="my-3">All Records (<?php 
@@ -124,7 +68,8 @@ $db = mysqli_connect("localhost","root","","crud");
                         <td><?= $row['city'];?></td>
                         <td>
                             <a href="" class="btn btn-info">view</a>
-                            <a href="#edit<?= $row['id'];?>" data-bs-toggle="modal" class="btn btn-success">edit</a>
+                            <?php  if(checkAuth()):?>
+                                <a href="#edit<?= $row['id'];?>" data-bs-toggle="modal" class="btn btn-success">edit</a>
                             <div class="modal fade" id="edit<?= $row['id'];?>" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -181,6 +126,7 @@ $db = mysqli_connect("localhost","root","","crud");
        
                             
                             <a href="index.php?del=<?= $row['id'];?>" class="btn btn-danger">Delete</a>
+                            <?php endif;?>
                         </td>
                     </tr>
                 
@@ -214,7 +160,7 @@ if(isset($_POST['send'])){
     }
 }
 
-if(isset($_POST['update'])){
+if(isset($_POST['update']) && checkAuth()){
     $name = $_POST['name'];
     $contact = $_POST['contact'];
     $email = $_POST['email'];
@@ -233,7 +179,8 @@ if(isset($_POST['update'])){
 
 
 
-if(isset($_GET['del'])){
+if(isset($_GET['del']) && checkAuth()){
+    checkAuth();
     $id = $_GET['del'];
     $query = mysqli_query($db, "delete from records where id='$id'");
     if($query){
